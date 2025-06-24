@@ -15,7 +15,6 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Patient {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long patientId;
