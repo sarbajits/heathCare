@@ -152,7 +152,7 @@ $(document).ready(function () {
 
 
         $.ajax({
-            url: "http://localhost:8080/patient",
+            url: "/patient",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(formData),

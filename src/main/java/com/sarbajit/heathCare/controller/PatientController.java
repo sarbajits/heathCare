@@ -25,7 +25,6 @@ public class PatientController {
 
     @PostMapping("/patient")
     public Patient postPatient(@RequestBody Patient data){
-
         return patientService.postPatient(data);
     }
 
