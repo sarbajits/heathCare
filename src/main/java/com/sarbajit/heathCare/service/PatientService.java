@@ -11,4 +11,6 @@ public interface PatientService {
     public List<Patient> getPatient();
 
     public Patient postPatient(Patient data);
+
+    public Patient getPatientById(Long id);
 }

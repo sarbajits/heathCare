@@ -75,9 +75,7 @@ $(document).ready(function () {
     });
 
 
-
-    $("#patientForm").submit(function (e) {
-        e.preventDefault();
+    function validate() {
 
         let {
             firstName, middleName, lastName,
@@ -147,12 +145,18 @@ $(document).ready(function () {
         //     return;
         // }
 
+        return true;
+    }
+
+    $("#submit").click(function (e) {
+        e.preventDefault();
+        if (!validate()) return;
+
         let formData = getPatientFormData();
         console.log(formData);
 
-
         $.ajax({
-            url: "/patient",
+            url: "http://localhost:8080/patient",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(formData),
@@ -160,7 +164,155 @@ $(document).ready(function () {
                 alert("Form submitted successfully!");
             }
         });
-
     });
+
+
+    let isFullscreen = false;
+
+    $(".fullscreenToggle").click(function (e) {
+        e.preventDefault();
+
+        if (!isFullscreen) {
+            $(this).parent().parent().css({
+                width: '100%'
+            });
+            $(this).text("fullscreen_exit");
+            $(this).parent().parent().siblings().hide();
+        } else {
+            $(this).parent().parent().css({
+                width: '50%',
+            });
+            $(this).text("fullscreen");
+            $(this).parent().parent().siblings().show();
+        }
+
+        isFullscreen = !isFullscreen;
+    });
+
+
+
+    const editDataForm = (id) => {
+        let url = "http://localhost:8080/patient/" + id;
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                // gridOptions.api.setRowData(data);
+                // console.log(data);
+                $("#firstName").val(data.firstName);
+                $("#middleName").val(data.middleName);
+                $("#lastName").val(data.lastName);
+                $("#aadharNumber").val(data.aadharNumber);
+                $("#phone").val(data.phone);
+                $("#email").val(data.email);
+                $("#gender").val(data.gender);
+
+                // console.log(data.dob);
+                let dob = data.dob.split("T")[0];
+                $("#dob").val(dob);
+
+                $("#house").val(data.house);
+                $("#village").val(data.village);
+                $("#subDivision").val(data.subDivision);
+                $("#policeStation").val(data.policeStation);
+                $("#district").val(data.district);
+                $("#state").val(data.state);
+                $("#coName").val(data.coName);
+                $("#emergencyPhone").val(data.emergencyPhone);
+
+            },
+            error: function (err) {
+                console.error('Error fetching patient:', err);
+            }
+        });
+
+        $("button[type='submit']").hide();
+        $("#edit").show();
+
+        $("#edit").click(function (e) {
+            e.preventDefault();
+            if (!validate()) return;
+
+            let formData = getPatientFormData();
+            console.log(formData);
+
+            $.ajax({
+                url: "http://localhost:8080/patient/" + id,
+                type: "PATCH",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    alert("Form edited successfully!");
+                },
+                error: function (err) {
+                    console.error("PATCH Error:", err);
+                    alert("Something went wrong while updating.");
+                }
+            });
+        });
+
+    }
+
+    const gridOptions = {
+        columnDefs: [
+            { headerName: "Select", checkboxSelection: true },
+            { headerName: "ID", field: "patientId" },
+            { headerName: "First Name", field: "firstName" },
+            { headerName: "Middle Name", field: "middleName" },
+            { headerName: "Last Name", field: "lastName" },
+            { headerName: "Aadhar", field: "aadharNumber" },
+            { headerName: "Phone", field: "phone" },
+            { headerName: "Email", field: "email" },
+            { headerName: "Gender", field: "gender" },
+            { headerName: "DOB", field: "dob" },
+            { headerName: "House", field: "house" },
+            { headerName: "Village", field: "village" },
+            { headerName: "Sub-Division", field: "subDivision" },
+            { headerName: "Police Station", field: "policeStation" },
+            { headerName: "District", field: "district" },
+            { headerName: "State", field: "state" },
+            { headerName: "C/O Name", field: "coName" },
+            { headerName: "Emergency Phone", field: "emergencyPhone" }
+        ],
+
+        // rowData:[
+        //   {}
+        // ],
+
+        //column level
+        defaultColDef: {
+            sortable: true,
+            filter: true,
+            resizable: true,
+        },
+        //grid level
+        rowSelection: "single",
+        pagination: true,
+        paginationPageSize: 10,
+
+        onRowClicked: function (event) {
+            console.log(event.data.patientId);
+            editDataForm(event.data.patientId);
+        }
+
+    };
+
+    const gridDiv = document.querySelector('#patientData');
+    new agGrid.Grid(gridDiv, gridOptions);
+
+    $.ajax({
+        url: 'http://localhost:8080/patient',
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            gridOptions.api.setRowData(data);
+        },
+        error: function (err) {
+            console.error('Error fetching patients:', err);
+        }
+    });
+
 
 });
