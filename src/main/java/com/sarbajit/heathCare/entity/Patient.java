@@ -1,12 +1,10 @@
 package com.sarbajit.heathCare.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import java.util.Date;
 
@@ -14,6 +12,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Where(clause = "delete_status = 0")
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,4 +33,7 @@ public class Patient {
     private String state;
     private String coName;
     private Long emergencyPhone;
+
+    @Column(columnDefinition = "int default 0",name = "delete_status")
+    private Integer deleteStatus= 0;
 }

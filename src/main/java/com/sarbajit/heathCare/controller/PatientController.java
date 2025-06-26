@@ -103,4 +103,8 @@ public class PatientController {
 //        return patientService.postPatient(existingPatient);
 //    }
 
+    @GetMapping("/patient/delete/{id}")
+    public void softDeleteById(@PathVariable Long id){
+        patientService.softDeleteById(id);
+    }
 }

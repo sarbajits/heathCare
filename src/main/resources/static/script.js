@@ -163,6 +163,8 @@ $(document).ready(function () {
             data: JSON.stringify(formData),
             success: function (response) {
                 alert("Form submitted successfully!");
+                refreshGridData();
+                resetDataForm();
             }
         });
     });
@@ -228,7 +230,19 @@ $(document).ready(function () {
 
 
 
-
+    function refreshGridData() {
+        $.ajax({
+            url: 'http://localhost:8080/patient',
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                gridOptions.api.setRowData(data);
+            },
+            error: function (err) {
+                console.error("Error refreshing grid:", err);
+            }
+        });
+    }
 
     const editDataForm = (id) => {
         let url = "http://localhost:8080/patient/" + id;
@@ -298,6 +312,34 @@ $(document).ready(function () {
         $("#patientForm")[0].reset();
     }
 
+    const deleteActive = (id) => {
+        $("#deleteRecord").show();
+        $("#deleteRecord").off('click'); // Unbind previous clicks
+
+        $("#deleteRecord").on('click', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: 'http://localhost:8080/patient/delete/' + id,
+                method: 'GET',
+                // REMOVE dataType: 'json' to prevent parse error
+                success: function () {
+                    alert("Record Deleted");
+                    resetDataForm();
+                    refreshGridData();
+                    $("#deleteRecord").hide();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                    alert("Failed to delete record");
+                }
+            });
+        });
+    }
+
+
+
+
     const gridOptions = {
         columnDefs: [
             { headerName: "Select", checkboxSelection: true },
@@ -340,6 +382,7 @@ $(document).ready(function () {
         onRowClicked: function (event) {
             if (event.node.selected) {
                 editDataForm(event.data.patientId);
+                deleteActive(event.data.patientId);
             } else {
                 resetDataForm();
             }
@@ -347,8 +390,10 @@ $(document).ready(function () {
         onRowSelected: function (event) {
             if (event.node.selected) {
                 editDataForm(event.data.patientId);
+                deleteActive(event.data.patientId);
             } else {
                 resetDataForm();
+                $("#deleteRecord").hide();
             }
         },
 
@@ -357,17 +402,21 @@ $(document).ready(function () {
     const gridDiv = document.querySelector('#patientData');
     new agGrid.Grid(gridDiv, gridOptions);
 
-    $.ajax({
-        url: 'http://localhost:8080/patient',
-        method: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            gridOptions.api.setRowData(data);
-        },
-        error: function (err) {
-            console.error('Error fetching patients:', err);
-        }
-    });
+    refreshGridData();
+    resetDataForm();
+    // $.ajax({
+    //     url: 'http://localhost:8080/patient',
+    //     method: 'GET',
+    //     dataType: 'json',
+    //     success: function (data) {
+    //         gridOptions.api.setRowData(data);
+    //     },
+    //     error: function (err) {
+    //         console.error('Error fetching patients:', err);
+    //     }
+    // });
+
+
 
 
 });

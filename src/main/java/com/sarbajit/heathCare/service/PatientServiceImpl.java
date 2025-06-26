@@ -53,4 +53,12 @@ public class PatientServiceImpl implements PatientService {
     public Patient getPatientById(Long id) {
         return patientRepository.findById(id).get();
     }
+
+    @Override
+    public void softDeleteById(Long id) {
+        Patient existingPatient = patientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Patient not found with id " + id));
+        existingPatient.setDeleteStatus(1); // mark as deleted
+        patientRepository.save(existingPatient);
+    }
 }

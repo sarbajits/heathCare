@@ -13,4 +13,6 @@ public interface PatientService {
     public Patient postPatient(Patient data);
 
     public Patient getPatientById(Long id);
+
+    public void softDeleteById(Long id);
 }
