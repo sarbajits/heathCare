@@ -8,40 +8,42 @@
 body {
     background-color: #f9f9f9;
     color: #333;
-    padding: 10px;
-    margin: auto;
-    /* max-height: 90vw; */
+    height: 100vh;
+    overflow: auto;
 }
 
 .container {
-    gap: 10px;
-    height: 90vh;
+    margin: 4px;
+    height: 96vh;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    flex: 1;
+    outline: 1px solid blue;
+    overflow: hidden;
+}
 
+.left,
+.right {
+    flex: 1;
+    outline: 1px solid blue;
+    background-color: white;
+    transition: flex 0.4s ease, width 0.4s ease;
+    overflow: auto;
+}
+.expand{
+    flex: 2;
+    width: 100%;
+}
+.hidden{
+    flex: 0;
+    width: 0;
+}
+#patientForm {
+    overflow: auto;
 }
 
 #patientData {
-    height: 100%;
-    width: 50%;
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 2px 2px 10px black;
-    overflow: visible;
-    /* transition: width 0.1s ease-in-out; */
-}
-
-#patientForm {
-    overflow: scroll;
-    height: 100%;
-    width: 50%;
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 2px 2px 10px black;
-    /* transition: width 0.1s ease-in-out; */
+    height: 94%;
+    overflow: auto;
 }
 
 .header {
@@ -49,21 +51,24 @@ body {
     flex-direction: row;
     justify-content: space-between;
     font-size: small;
+    outline: 1px solid blue;
+    padding: 4px;
 }
 
-h1 {
+/* h1 {
     text-align: center;
     margin-bottom: 8px;
     font-size: xx-large;
     color: #222;
-}
+} */
 
 .row {
     display: flex;
-    flex-wrap: wrap;
     gap: 8px;
+    flex-wrap: wrap;
     margin-bottom: 2px;
     margin-top: 10px;
+    padding: 6px;
     /* justify-content: center; */
     align-items: center;
 }
@@ -101,6 +106,7 @@ button {
     color: white;
     border: none;
     cursor: pointer;
+
 }
 
 button:hover {
@@ -108,8 +114,7 @@ button:hover {
 }
 
 .buttons {
-    display: flex;
-    justify-content: flex-end;
+    margin-left: 10px;
     gap: 10px;
     margin-top: 10px;
 }
@@ -123,18 +128,20 @@ button:hover {
     background-color: #c2c2c2;
 }
 
-#edit{
+/* #edit{
     display: none;
-}
+} */
 
 @media only screen and (max-width: 768px) {
-    body {
-        max-width: 96vw;
-    }
 
     .container {
+        width: 98%;
         height: auto;
+        display: flex;
         flex-direction: column;
+    }
+    .left,.right{
+        width: 100%;
     }
 
     #patientData {
@@ -153,12 +160,12 @@ button:hover {
         font-weight: 500;
         margin-bottom: 2px;
     }
-    .fullscreenToggle{
+    .header span{
         display: none;
     }
 }
 
-.fullscreenToggle{
+.fullscreenToggle {
     cursor: pointer;
     user-select: none;
 }

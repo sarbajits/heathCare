@@ -2,6 +2,7 @@ $(document).ready(function () {
 
     function getPatientFormData() {
         return {
+            patientId: $("#patientId").val().trim(),
             firstName: $("#firstName").val().trim(),
             middleName: $("#middleName").val().trim(),
             lastName: $("#lastName").val().trim(),
@@ -166,28 +167,66 @@ $(document).ready(function () {
         });
     });
 
+    //fullscreen toggle
+    // let isFullscreen = false;
+
+    // $(".fullscreenToggle").click(function (e) {
+    //     e.preventDefault();
+
+    //     if (!isFullscreen) {
+    //         $(this).parent().parent().css({
+    //             width: '100%'
+    //         });
+    //         $(this).text("fullscreen_exit");
+    //         $(this).parent().parent().siblings().hide();
+    //     } else {
+    //         $(this).parent().parent().css({
+    //             width: '50%',
+    //         });
+    //         $(this).text("fullscreen");
+    //         $(this).parent().parent().siblings().show();
+    //     }
+
+    //     isFullscreen = !isFullscreen;
+    // });
 
     let isFullscreen = false;
-
-    $(".fullscreenToggle").click(function (e) {
+    $(".fullscreenToggle").on('click', (function (e) {
         e.preventDefault();
+        console.log("full screen called now");
+
+        // let $this = $(this);
+        // let targetId = $this.data("target");
+        // let $activeBox = $(targetId);
+        // let $otherBox = $activeBox.siblings();
 
         if (!isFullscreen) {
             $(this).parent().parent().css({
+                flex: '2',
                 width: '100%'
             });
+            $(this).parent().parent().siblings().css({
+                flex: '0',
+                width: '0%',
+
+            });
             $(this).text("fullscreen_exit");
-            $(this).parent().parent().siblings().hide();
         } else {
             $(this).parent().parent().css({
-                width: '50%',
+                flex: '1',
+                width: '50%'
+            });
+            $(this).parent().parent().siblings().css({
+                flex: '1',
+                width: '50%'
             });
             $(this).text("fullscreen");
-            $(this).parent().parent().siblings().show();
         }
 
         isFullscreen = !isFullscreen;
-    });
+    }));
+
+
 
 
 
@@ -201,6 +240,7 @@ $(document).ready(function () {
             success: function (data) {
                 // gridOptions.api.setRowData(data);
                 // console.log(data);
+                $("#patientId").val(data.patientId);
                 $("#firstName").val(data.firstName);
                 $("#middleName").val(data.middleName);
                 $("#lastName").val(data.lastName);
@@ -228,31 +268,34 @@ $(document).ready(function () {
             }
         });
 
-        $("button[type='submit']").hide();
-        $("#edit").show();
+        // $("button[type='submit']").hide();
+        // $("#edit").show();
 
-        $("#edit").click(function (e) {
-            e.preventDefault();
-            if (!validate()) return;
+        // $("#edit").click(function (e) {
+        //     e.preventDefault();
+        //     if (!validate()) return;
 
-            let formData = getPatientFormData();
-            console.log(formData);
+        //     let formData = getPatientFormData();
+        //     console.log(formData);
 
-            $.ajax({
-                url: "http://localhost:8080/patient/" + id,
-                type: "PATCH",
-                contentType: "application/json",
-                data: JSON.stringify(formData),
-                success: function (response) {
-                    alert("Form edited successfully!");
-                },
-                error: function (err) {
-                    console.error("PATCH Error:", err);
-                    alert("Something went wrong while updating.");
-                }
-            });
-        });
+        //     $.ajax({
+        //         url: "http://localhost:8080/patient/" + id,
+        //         type: "PATCH",
+        //         contentType: "application/json",
+        //         data: JSON.stringify(formData),
+        //         success: function (response) {
+        //             alert("Form edited successfully!");
+        //         },
+        //         error: function (err) {
+        //             console.error("PATCH Error:", err);
+        //             alert("Something went wrong while updating.");
+        //         }
+        //     });
+        // });
 
+    }
+    const resetDataForm = () => {
+        $("#patientForm")[0].reset();
     }
 
     const gridOptions = {
@@ -286,6 +329,8 @@ $(document).ready(function () {
             sortable: true,
             filter: true,
             resizable: true,
+            flex: 1,
+            minWidth: 100
         },
         //grid level
         rowSelection: "single",
@@ -293,9 +338,19 @@ $(document).ready(function () {
         paginationPageSize: 10,
 
         onRowClicked: function (event) {
-            console.log(event.data.patientId);
-            editDataForm(event.data.patientId);
-        }
+            if (event.node.selected) {
+                editDataForm(event.data.patientId);
+            } else {
+                resetDataForm();
+            }
+        },
+        onRowSelected: function (event) {
+            if (event.node.selected) {
+                editDataForm(event.data.patientId);
+            } else {
+                resetDataForm();
+            }
+        },
 
     };
 
