@@ -59,10 +59,10 @@ $(document).ready(function () {
     });
 
     $("#emergencyPhone").on("input", function () {
-        let phone = $(this).val();
+        let emergencyPhone = $(this).val();
         let regex = /^[6-9]\d{9}$/;
 
-        if (regex.test(phone)) {
+        if (regex.test(emergencyPhone)) {
             $(this).css({
                 background: "#caffe2",
                 border: "1px solid #009c46"
@@ -125,11 +125,27 @@ $(document).ready(function () {
         }
 
         let birthDate = new Date(dob);
-        let age = new Date().getFullYear() - birthDate.getFullYear();
-        if (age < 0 || age > 120) {
-            alert("Please enter a valid DOB.");
+        let today = new Date();
+
+        // Check if DOB is in the future
+        if (birthDate > today) {
+            alert("Date of Birth cannot be in the future.");
             return;
         }
+
+        // Calculate accurate age
+        let age = today.getFullYear() - birthDate.getFullYear();
+        let m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        // Check age range
+        if (age < 0 || age > 120) {
+            alert("Please enter a valid DOB (Age should be between 0 and 120).");
+            return;
+        }
+
 
         if (!house || !village || !subDivision || !policeStation || !district || !state) {
             alert("Please fill out all address fields.");
@@ -154,6 +170,7 @@ $(document).ready(function () {
         if (!validate()) return;
 
         let formData = getPatientFormData();
+        formData.createdOn = new Date();
         console.log(formData);
 
         $.ajax({
@@ -244,7 +261,7 @@ $(document).ready(function () {
         });
     }
 
-    const editDataForm = (id) => {
+    const setDataForm = (id) => {
         let url = "http://localhost:8080/patient/" + id;
 
         $.ajax({
@@ -264,8 +281,9 @@ $(document).ready(function () {
                 $("#gender").val(data.gender);
 
                 // console.log(data.dob);
-                let dob = data.dob.split("T")[0];
-                $("#dob").val(dob);
+                // let dob = data.dob.split("T")[0];
+                // $("#dob").val(dob);
+                $("#dob").val(data.dob);
 
                 $("#house").val(data.house);
                 $("#village").val(data.village);
@@ -344,9 +362,19 @@ $(document).ready(function () {
         columnDefs: [
             { headerName: "Select", checkboxSelection: true },
             { headerName: "ID", field: "patientId" },
-            { headerName: "First Name", field: "firstName" },
-            { headerName: "Middle Name", field: "middleName" },
-            { headerName: "Last Name", field: "lastName" },
+            {
+                headerName: "Full Name",
+                field: "fullName",
+                valueGetter: function (params) {
+                    const first = params.data.firstName || "";
+                    const middle = params.data.middleName || "";
+                    const last = params.data.lastName || "";
+                    return [first, middle, last].filter(Boolean).join(" ");
+                }
+            },
+            // { headerName: "First Name", field: "firstName" },
+            // { headerName: "Middle Name", field: "middleName" },
+            // { headerName: "Last Name", field: "lastName" },
             { headerName: "Aadhar", field: "aadharNumber" },
             { headerName: "Phone", field: "phone" },
             { headerName: "Email", field: "email" },
@@ -359,7 +387,23 @@ $(document).ready(function () {
             { headerName: "District", field: "district" },
             { headerName: "State", field: "state" },
             { headerName: "C/O Name", field: "coName" },
-            { headerName: "Emergency Phone", field: "emergencyPhone" }
+            { headerName: "Emergency Phone", field: "emergencyPhone" },
+            {
+                headerName: "Created On",
+                field: "createdOn",
+                valueFormatter: (params) => {
+                    if (!params.value) return '';
+                    const date = new Date(params.value);
+                    return date.toLocaleString('en-IN', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                }
+            }
         ],
 
         // rowData:[
@@ -381,23 +425,25 @@ $(document).ready(function () {
 
         onRowClicked: function (event) {
             if (event.node.selected) {
-                editDataForm(event.data.patientId);
+                setDataForm(event.data.patientId);
                 deleteActive(event.data.patientId);
             } else {
                 resetDataForm();
             }
         },
-        onRowSelected: function (event) {
-            if (event.node.selected) {
-                editDataForm(event.data.patientId);
-                deleteActive(event.data.patientId);
-            } else {
-                resetDataForm();
-                $("#deleteRecord").hide();
-            }
-        },
+        onRowSelected: rowSelect
 
     };
+
+    function rowSelect() {
+        let selectedrows = gridOptions.api.getSelectedRows();
+        if (selectedrows.length > 0) {
+            $("#deleteRecord").show();
+        }
+        else {
+            $("#deleteRecord").hide();
+        }
+    }
 
     const gridDiv = document.querySelector('#patientData');
     new agGrid.Grid(gridDiv, gridOptions);
@@ -417,6 +463,46 @@ $(document).ready(function () {
     // });
 
 
+    $("#search").on("input", function () {
+        let keyword = $(this).val();
+        $.ajax({
+            url: 'http://localhost:8080/search?keyword=' + keyword,
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                gridOptions.api.setRowData(data);
+            },
+            error: function (err) {
+                console.error('Error fetching patients:', err);
+            }
+        });
+    });
 
+
+    $("#formDate, #toDate").on("input", function () {
+        let fromDate = $("#formDate").val();
+        let toDate = $("#toDate").val();
+        console.log(fromDate);
+        console.log(toDate);
+        if (!toDate) {
+            return;
+        }
+
+        if (!fromDate) {
+            return;
+        }
+
+        $.ajax({
+            url: 'http://localhost:8080/patientFilter?fromDate=' + fromDate + "&toDate=" + toDate,
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                gridOptions.api.setRowData(data);
+            },
+            error: function (err) {
+                console.error('Error fetching patients:', err);
+            }
+        });
+    });
 
 });

@@ -7,13 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
 //@RequiredArgsConstructor
 public class PatientServiceImpl implements PatientService {
     @Autowired
-    public  PatientRepository patientRepository;
+    public PatientRepository patientRepository;
 
     @Override
     public List<Patient> getPatient() {
@@ -22,9 +23,10 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient postPatient(Patient data) {
-        if (data.getPatientId()== null){
+//        data.setFullName();
+        if (data.getPatientId() == null) {
             return patientRepository.save(data);
-        }else{
+        } else {
             Patient existingPatient = patientRepository.findById(data.getPatientId()).get();
 
             existingPatient.setFirstName(data.getFirstName());
@@ -43,6 +45,9 @@ public class PatientServiceImpl implements PatientService {
             existingPatient.setState(data.getState());
             existingPatient.setCoName(data.getCoName());
             existingPatient.setEmergencyPhone(data.getEmergencyPhone());
+            existingPatient.setCreatedOn(data.getCreatedOn());
+
+//            existingPatient.setFullName();
 
             patientRepository.save(existingPatient);
             return existingPatient;
@@ -60,5 +65,15 @@ public class PatientServiceImpl implements PatientService {
                 .orElseThrow(() -> new RuntimeException("Patient not found with id " + id));
         existingPatient.setDeleteStatus(1); // mark as deleted
         patientRepository.save(existingPatient);
+    }
+
+    @Override
+    public List<Patient> search(String keyword) {
+        return patientRepository.search(keyword);
+    }
+
+    @Override
+    public List<Patient> getPatientDateFilter(Date fromDate, Date toDate) {
+        return patientRepository.getPatientDateFilter(fromDate,toDate);
     }
 }

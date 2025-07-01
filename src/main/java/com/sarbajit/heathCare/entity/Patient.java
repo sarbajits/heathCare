@@ -6,7 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Data
@@ -24,7 +27,7 @@ public class Patient {
     private Long phone;
     private String email;
     private String gender;
-    private Date dob;
+    private LocalDate dob;
     private String house;
     private String village;
     private String subDivision;
@@ -34,6 +37,20 @@ public class Patient {
     private String coName;
     private Long emergencyPhone;
 
-    @Column(columnDefinition = "int default 0",name = "delete_status")
-    private Integer deleteStatus= 0;
+    @Column(columnDefinition = "int default 0", name = "delete_status")
+    private Integer deleteStatus = 0;
+
+    private Date createdOn;
+
+//    private String fullName;
+
+//    public String getFullName() {
+//        return firstName+" "+(Objects.equals(middleName, "") ? "" : middleName + " ")+lastName;
+//    }
+
+//    public void setFullName() {
+//        this.fullName = (firstName == null ? "" : firstName + " ")
+//                + (Objects.equals(middleName, "") ? "" : middleName + " ")
+//                + (lastName == null ? "" : lastName);
+//    }
 }

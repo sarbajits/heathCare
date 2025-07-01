@@ -3,15 +3,11 @@ package com.sarbajit.heathCare.controller;
 import com.sarbajit.heathCare.entity.Patient;
 import com.sarbajit.heathCare.service.PatientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -107,4 +103,17 @@ public class PatientController {
     public void softDeleteById(@PathVariable Long id){
         patientService.softDeleteById(id);
     }
+
+    @GetMapping("/search")
+    public List<Patient> search(@RequestParam String keyword){
+        return patientService.search(keyword);
+    }
+
+    @GetMapping("/patientFilter")
+    public List<Patient> getPatientDateFilter(
+            @RequestParam("fromDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
+            @RequestParam("toDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate) {
+        return patientService.getPatientDateFilter(fromDate, toDate);
+    }
+
 }
