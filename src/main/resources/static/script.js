@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    
+    const backendUrl="http://localhost:8080";
 
     function getPatientFormData() {
         return {
@@ -174,7 +176,7 @@ $(document).ready(function () {
         console.log(formData);
 
         $.ajax({
-            url: "http://localhost:8080/patient",
+            url: backendUrl+"/patient",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(formData),
@@ -249,7 +251,7 @@ $(document).ready(function () {
 
     function refreshGridData() {
         $.ajax({
-            url: 'http://localhost:8080/patient',
+            url: backendUrl+"/patient",
             method: 'GET',
             dataType: 'json',
             success: function (data) {
@@ -262,7 +264,7 @@ $(document).ready(function () {
     }
 
     const setDataForm = (id) => {
-        let url = "http://localhost:8080/patient/" + id;
+        let url = backendUrl+"/patient/" + id;
 
         $.ajax({
             url: url,
@@ -311,7 +313,7 @@ $(document).ready(function () {
         //     console.log(formData);
 
         //     $.ajax({
-        //         url: "http://localhost:8080/patient/" + id,
+        //         url: backendUrl+"/patient/" + id,
         //         type: "PATCH",
         //         contentType: "application/json",
         //         data: JSON.stringify(formData),
@@ -338,7 +340,7 @@ $(document).ready(function () {
             e.preventDefault();
 
             $.ajax({
-                url: 'http://localhost:8080/patient/delete/' + id,
+                url: backendUrl+"/patient/delete/" + id,
                 method: 'GET',
                 // REMOVE dataType: 'json' to prevent parse error
                 success: function () {
@@ -451,7 +453,7 @@ $(document).ready(function () {
     refreshGridData();
     resetDataForm();
     // $.ajax({
-    //     url: 'http://localhost:8080/patient',
+    //     url: backendUrl+"/patient",
     //     method: 'GET',
     //     dataType: 'json',
     //     success: function (data) {
@@ -466,7 +468,7 @@ $(document).ready(function () {
     $("#search").on("input", function () {
         let keyword = $(this).val();
         $.ajax({
-            url: 'http://localhost:8080/search?keyword=' + keyword,
+            url: backendUrl+"/search?keyword=" + keyword,
             method: 'GET',
             dataType: 'json',
             success: function (data) {
@@ -493,7 +495,7 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: 'http://localhost:8080/patientFilter?fromDate=' + fromDate + "&toDate=" + toDate,
+            url: backendUrl+"/patientFilter?fromDate=" + fromDate + "&toDate=" + toDate,
             method: 'GET',
             dataType: 'json',
             success: function (data) {
